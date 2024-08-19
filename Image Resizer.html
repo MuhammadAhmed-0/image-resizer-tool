@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Image Resizer</title>
+<style>
+  body {
+    font-family: Arial, sans-serif;
+    background-color: #f4f4f4;
+  }
+  .container {
+    max-width: 600px;
+    margin: 50px auto;
+    padding: 20px;
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  }
+  h1 {
+    text-align: center;
+    color: #333;
+  }
+  input[type="file"] {
+    margin-bottom: 15px;
+  }
+  input[type="number"] {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 15px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+  }
+  button {
+    display: block;
+    width: 100%;
+    padding: 10px;
+    background-color: #4caf50;
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+  }
+  button:hover {
+    background-color: #45a049;
+  }
+  .image-container {
+    text-align: center;
+    margin-top: 20px;
+  }
+  img {
+    max-width: 100%;
+    height: auto;
+  }
+</style>
+</head>
+<body>
+
+<div class="container">
+  <h1>Image Resizer</h1>
+  <input type="file" id="imageInput" accept="image/*">
+  <label for="widthInput">Width (px):</label>
+  <input type="number" id="widthInput" placeholder="Enter width">
+  <label for="heightInput">Height (px):</label>
+  <input type="number" id="heightInput" placeholder="Enter height">
+  <button onclick="resizeImage()">Resize Image</button>
+  <div class="image-container" id="imageContainer"></div>
+</div>
+
+<script>
+  function resizeImage() {
+    var input = document.getElementById('imageInput');
+    var width = document.getElementById('widthInput').value;
+    var height = document.getElementById('heightInput').value;
+
+    if (!input.files || !input.files[0]) {
+      alert('Please select an image.');
+      return;
+    }
+
+    var file = input.files[0];
+    var reader = new FileReader();
+
+    reader.onload = function(e) {
+      var image = new Image();
+      image.src = e.target.result;
+
+      image.onload = function() {
+        var canvas = document.createElement('canvas');
+        var ctx = canvas.getContext('2d');
+
+        if (width && height) {
+          canvas.width = width;
+          canvas.height = height;
+        } else if (width) {
+          canvas.width = width;
+          canvas.height = (width / image.width) * image.height;
+        } else if (height) {
+          canvas.width = (height / image.height) * image.width;
+          canvas.height = height;
+        }
+
+        ctx.drawImage(image, 0, 0, canvas.width, canvas.height);
+        var resizedImage = canvas.toDataURL('image/jpeg');
+
+        var imageContainer = document.getElementById('imageContainer');
+        imageContainer.innerHTML = '<img src="' + resizedImage + '" alt="Resized Image">';
+        var downloadLink = document.createElement('a');
+        downloadLink.href = resizedImage;
+        downloadLink.download = 'resized_image.jpg';
+        downloadLink.innerHTML = '<button>Download Resized Image</button>';
+        imageContainer.appendChild(downloadLink);
+      };
+    };
+
+    reader.readAsDataURL(file);
+  }
+</script>
+
+</body>
+</html>
